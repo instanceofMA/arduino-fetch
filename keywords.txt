@@ -1,0 +1,39 @@
+#######################################
+# Syntax Coloring Map For Grandeur
+####################################### 
+# Class
+#######################################
+
+# RequestOptions	KEYWORD3
+# Request	KEYWORD3
+# Response	KEYWORD3
+# Headers	KEYWORD3
+# Body	KEYWORD3
+
+#######################################
+# Datatypes 
+#######################################
+
+RequestOptions	KEYWORD1
+Request	KEYWORD1
+Response	KEYWORD1
+Headers	KEYWORD1
+Body	KEYWORD1
+
+#######################################
+# Methods and Functions 
+#######################################
+
+fetch	KEYWORD2
+text	KEYWORD2
+json	KEYWORD2
+blob	KEYWORD2
+get	KEYWORD2
+raw 	KEYWORD2
+
+#######################################
+# Constants
+#######################################
+
+CONNECTED	LITERAL1
+DISCONNECTED	LITERAL1

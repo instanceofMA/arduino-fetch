@@ -20,7 +20,7 @@ RequestOptions options;
 /**
     {
         method: "GET" || "POST" || "HEAD" || "PUT" || "DELETE",
-        headers: { "Content-Type": "application/urlencoded", "Content-Length": Automatic, "Host: FromURL, "User-Agent": "arduino-fetch", "Cookie", "Accept": "* /*", "", "Connection": "close", "Transfer-Encoding": "chunked" },
+        headers: { "Content-Type": "application/urlencoded", "Content-Length": Automatic, "Host: FromURL, "User-Agent": "arduino-fetch", "Cookie", "Accept": "* /*", "Connection": "close", "Transfer-Encoding": "chunked" },
         body: {},
         redirect: "follow" || "manual", "error",
         follow: Integer,
