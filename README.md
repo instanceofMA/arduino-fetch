@@ -87,7 +87,7 @@ Headers headers;
 
 headers.contentType = "application/json";
 headers.connection = "keep-alive";
-headers.cookie = "abc=def,ghi=jkl";
+headers.cookie = "abc=def,ghi=jkl"; // Not yet supported.
 ```
 # Response
 
@@ -103,10 +103,10 @@ unsigned int[] array = response.arrayBuffer(); // Not yet supported.
 bool ok = response.ok;
 int status = response.status;
 const char* statusText = response.statusText;
-bool redirected = response.redirected;
-const char* type = response.type;
+bool redirected = response.redirected; // Not yet supported.
+const char* type = response.type; // Not yet supported.
 const char* response.headers.get("content-type");
-Headers headers = response.headers.raw();
-const char* contentTypeHeader = headers["content-type"];
+Headers headers = response.headers.raw(); // Not yet supported
+const char* contentTypeHeader = headers["content-type"]; // Not yet supported.
 
 ```
