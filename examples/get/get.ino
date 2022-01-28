@@ -9,11 +9,9 @@ void setup() {
     connectWiFi(SSID, PASSPHRASE);
 
     RequestOptions options;
-    options.method = "POST";
-    options.headers.contentType = "application/json";
-    options.body = "{\"email\": \"test@test.com\", \"password\": \"test:80\"}";
+    options.method = "GET";
     
-    Response response = fetch("https://api.grandeur.tech/auth/login/?apiKey=grandeurkywxmoy914080rxf9dh05n7e", options);
+    Response response = fetch("https://api.grandeur.tech/", options);
 
     Serial.println(response.text());
 }
