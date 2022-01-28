@@ -48,13 +48,30 @@ String operator+(String str, Body body);
 //         Request();
 // };
 
-class Response {
+class ResponseHeaders {
     private:
-    String _text;
     public:
-    Response();
-    Response(String body);
-    String text();
+        String text;
+
+        ResponseHeaders();
+        String get(String headerName);
+};
+
+class Response: public Printable {
+    private:
+    public:
+        bool ok;
+        int status;
+        String statusText;
+        bool redirected;
+        String type;
+        ResponseHeaders headers;
+        String body;
+
+        Response();
+        String text();
+
+        size_t printTo(Print& p) const;
 };
 
 class RequestOptions {

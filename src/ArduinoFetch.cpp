@@ -13,7 +13,7 @@ Response fetch(const char* url, RequestOptions options) {
 
     // Set fingerprint if https.
     if(parsedUrl.scheme == "https") {
-        if(options.fingerprint == "\0") Serial.println("[Error] Provide fingerprint for HTTPS.");
+        if(options.fingerprint == "") Serial.println("[Error] Provide fingerprint for HTTPS.");
         else client.setFingerprint(options.fingerprint.c_str());
     }
 
@@ -39,30 +39,45 @@ Response fetch(const char* url, RequestOptions options) {
     client.print(request);
 
     // Getting response headers.
-    String headers = "";
-    while(client.connected()) {
+    Response response;
+    for(int nLine = 1; client.connected(); nLine++) {
+        // Reading headers line by line.
         String line = client.readStringUntil('\n');
-        headers += line;
+        // Parse status and statusText from line 1.
+        if(nLine == 1) {
+            response.status = line.substring(line.indexOf(" ")).substring(0, line.indexOf(" ")).toInt();
+            response.statusText = line.substring(line.indexOf(String(response.status)) + 4);
+            response.statusText.trim();
+            continue;
+        }
+
+        response.headers.text += line + "\n";
+        // If headers end, move on.
         if(line == "\r") break;
     }
 
     // Serial.println("-----HEADERS START-----");
-    // Serial.println(headers);
+    // Serial.println(response.headers.text);
     // Serial.println("-----HEADERS END-----");
 
     // Getting response body.
-    String body = "";
     while(client.available()) {
-        body += client.readStringUntil('\n');
-        body += "\n";
+        response.body += client.readStringUntil('\n');
     }
 
-    return Response(body);
+    return response;
 }
 
 Headers::Headers(): contentType("application/x-www-form-urlencoded"),
-    contentLength(-1), userAgent("arduino-fetch"), cookie("\0"),
-    accept("*/*"), connection("close"), transferEncoding("\0") {}
+    contentLength(-1), userAgent("arduino-fetch"), cookie(""),
+    accept("*/*"), connection("close"), transferEncoding("") {}
+
+ResponseHeaders::ResponseHeaders(): text("") {}
+
+String ResponseHeaders::get(String headerName) {
+    String tillEnd = this->text.substring(this->text.lastIndexOf(headerName + ": "));
+    return tillEnd.substring(tillEnd.indexOf(" ") + 1, tillEnd.indexOf("\n") - 1);
+}
 
 Body::Body(): _text("") {}
 
@@ -85,11 +100,27 @@ String operator+(String str, Body body) {
 // ArduinoFetch::ArduinoFetch(const char* url, RequestOptions options) :
 //     _url(url), _options(options) {}
 
-Response::Response(String body): _text(body) {}
+Response::Response(): ok(false), status(200), statusText("OK"),
+    redirected(false), type(""), headers(ResponseHeaders()), body("") {}
 
 String Response::text() {
-    return this->_text;
+    return this->body;
 }
 
-RequestOptions::RequestOptions(): method("GET"), headers(Headers()), body(Body()), fingerprint("\0") {}
+size_t Response::printTo(Print& p) const {
+    size_t r = 0;
+
+    r += p.printf(
+        (String("{") +
+            "\n\t\"ok\": %d" +
+            "\n\t\"status\": %d" +
+            "\n\t\"statusText\": \"%s\"" +
+            "\n\t\"body\": \"%s\"" +
+        "\n}").c_str(),
+        ok, status, statusText.c_str(), body.c_str());
+
+    return r;
+}
+
+RequestOptions::RequestOptions(): method("GET"), headers(Headers()), body(Body()), fingerprint("") {}
 

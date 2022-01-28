@@ -16,8 +16,10 @@ void setup() {
     options.fingerprint = FINGERPRINT;
     
     Response response = fetch("https://api.grandeur.tech/auth/login/?apiKey=grandeurkywxmoy914080rxf9dh05n7e", options);
-
-    Serial.println(response.text());
+    
+    Serial.println(response);
+    Serial.printf("Connection Header: \"%s\"\n", response.headers.get("Content-Type").c_str());
+    Serial.printf("Connection Header: \"%s\"\n", response.headers.get("Connection").c_str());
 }
 
 void loop() {
