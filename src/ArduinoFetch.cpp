@@ -1,54 +1,42 @@
 #include "ArduinoFetch.h"
 #include <WiFiClientSecure.h>
-#include <LCBUrl.h>
 
 // ArduinoFetch arduinoFetch;
 
-const char fingerprint[] PROGMEM = "DC 78 3C 09 3A 78 E3 A0 BA A9 C5 4F 7A A0 87 6F 89 01 71 4C";
-
 Response fetch(const char* url, RequestOptions options) {
     // Parsing URL.
-    LCBUrl lcbUrl;
-    lcbUrl.setUrl(url);
-    String scheme = lcbUrl.getScheme();
-    String host = lcbUrl.getHost();
-    String path = "/" + lcbUrl.getPath();
-    String afterPath = lcbUrl.getAfterPath();
-    unsigned int port = lcbUrl.getPort();
-
-    Serial.printf("scheme: %s, host: %s, path: %s, pathSegment: %s, port: %u\n", scheme.c_str(), host.c_str(), path.c_str(), afterPath.c_str(), port);
+    Url parsedUrl = parseUrl(url);
     
     WiFiClientSecure client;
     // Retry every 15 seconds.
     client.setTimeout(15000);
+
     // Set fingerprint if https.
-    if(scheme == "https") client.setFingerprint(fingerprint);
-
-    delay(1000);
-
-    // Connecting to server.
-    while(!client.connect(host, port)) {
-        delay(1000);
-        Serial.print(".");
+    if(parsedUrl.scheme == "https") {
+        if(options.fingerprint == "\0") Serial.println("[Error] Provide fingerprint for HTTPS.");
+        else client.setFingerprint(options.fingerprint.c_str());
     }
 
-    Serial.println("Request is: ");
-    Serial.println(
-        options.method + " " + path + afterPath + " HTTP/1.1\r\n" +
-        "Host: " + host + "\r\n" +
+    // Connecting to server.
+    while(!client.connect(parsedUrl.host, parsedUrl.port)) {
+        delay(1000);
+        // Serial.print(".");
+    }
+
+    // Forming request.
+    String request =
+        options.method + " " + parsedUrl.path + parsedUrl.afterPath + " HTTP/1.1\r\n" +
+        "Host: " + parsedUrl.host + "\r\n" +
+        "User-Agent: " + options.headers.userAgent + "\r\n" +
         "Content-Type: " + options.headers.contentType + "\r\n" +
-        "Connection: close\r\n\r\n" +
-        options.body + "\r\n\r\n"
-    );
+        "Connection: " + options.headers.connection + "\r\n\r\n" +
+        options.body + "\r\n\r\n";
+
+    // Serial.println("Request is: ");
+    // Serial.println(request);
 
     // Sending request.
-    client.print(
-        options.method + " " + path + afterPath + " HTTP/1.1\r\n" +
-        "Host: " + host + "\r\n" +
-        "Content-Type: " + options.headers.contentType + "\r\n" +
-        "Connection: close\r\n\r\n" +
-        options.body + "\r\n\r\n"
-    );
+    client.print(request);
 
     // Getting response headers.
     String headers = "";
@@ -58,9 +46,9 @@ Response fetch(const char* url, RequestOptions options) {
         if(line == "\r") break;
     }
 
-    Serial.println("-----HEADERS START-----");
-    Serial.println(headers);
-    Serial.println("-----HEADERS END-----");
+    // Serial.println("-----HEADERS START-----");
+    // Serial.println(headers);
+    // Serial.println("-----HEADERS END-----");
 
     // Getting response body.
     String body = "";
@@ -73,7 +61,7 @@ Response fetch(const char* url, RequestOptions options) {
 }
 
 Headers::Headers(): contentType("application/x-www-form-urlencoded"),
-    contentLength(-1), host("\0"), userAgent("arduino-fetch"), cookie("\0"),
+    contentLength(-1), userAgent("arduino-fetch"), cookie("\0"),
     accept("*/*"), connection("close"), transferEncoding("\0") {}
 
 Body::Body(): _text("") {}
@@ -103,5 +91,5 @@ String Response::text() {
     return this->_text;
 }
 
-RequestOptions::RequestOptions(): method("GET"), headers(Headers()), body(Body()) {}
+RequestOptions::RequestOptions(): method("GET"), headers(Headers()), body(Body()), fingerprint("\0") {}
 

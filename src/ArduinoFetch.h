@@ -1,14 +1,17 @@
-#include "utils/FormData.h"
-#include "utils/URLEncoded.h"
-#include "utils/JSON.h"
+// #include "utils/FormData.h"
+// #include "utils/URLEncoded.h"
+// #include "utils/JSON.h"
+#include "utils/Url/Url.h"
 #include <Arduino.h>
+
+#ifndef FETCH_H_
+#define FETCH_H_
 
 class Headers {
     private:
     public:
         String contentType;
         unsigned long contentLength;
-        String host;
         String userAgent;
         String cookie;
         String accept;
@@ -60,6 +63,7 @@ class RequestOptions {
         String method;
         Headers headers;
         Body body;
+        String fingerprint;
         RequestOptions();
 };
 
@@ -73,3 +77,5 @@ class RequestOptions {
 // };
 
 Response fetch(const char* url, RequestOptions options);
+
+#endif
