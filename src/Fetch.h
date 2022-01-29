@@ -84,13 +84,13 @@ class RequestOptions {
         RequestOptions();
 };
 
-// class ArduinoFetch {
+// class Fetch {
 //     private:
 //         const char* _url;
 //         RequestOptions _options;
 //     public:
-//         ArduinoFetch();
-//         ArduinoFetch(const char* url, RequestOptions options);
+//         Fetch();
+//         Fetch(const char* url, RequestOptions options);
 // };
 
 Response fetch(const char* url, RequestOptions options);

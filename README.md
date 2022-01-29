@@ -1,5 +1,5 @@
-# Arduino Fetch
-Arduino fetch is a high level HTTP Request Library that gives you a javascript fetch like API.
+# Fetch for Arduino
+fetch is a high level HTTP Request Library that gives you a javascript fetch like API.
 
 ```js
 ResponseOptions options;
@@ -23,7 +23,7 @@ Response response = fetch("https://api.grandeur.tech/auth/login/?apiKey=grandeur
 # Include
 
 ```cpp
-#include <ArduinoFetch.h>
+#include <Fetch.h>
 ```
 
 # Usage

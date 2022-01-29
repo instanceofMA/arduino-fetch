@@ -1,7 +1,7 @@
-#include "ArduinoFetch.h"
+#include "Fetch.h"
 #include <WiFiClientSecure.h>
 
-// ArduinoFetch arduinoFetch;
+// Fetch fetch;
 
 Response fetch(const char* url, RequestOptions options) {
     // Parsing URL.
@@ -97,7 +97,7 @@ String operator+(String str, Body body) {
     return str + body.text();
 }
 
-// ArduinoFetch::ArduinoFetch(const char* url, RequestOptions options) :
+// Fetch::Fetch(const char* url, RequestOptions options) :
 //     _url(url), _options(options) {}
 
 Response::Response(): ok(false), status(200), statusText("OK"),
