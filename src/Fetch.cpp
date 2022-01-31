@@ -13,12 +13,23 @@ Response fetch(const char* url, RequestOptions options) {
 
     // Set fingerprint if https.
     if(parsedUrl.scheme == "https") {
-        if(options.fingerprint == "") Serial.println("[Error] Provide fingerprint for HTTPS.");
+        #ifdef ESP8266
+        if(options.fingerprint == "") {
+            Serial.println("[INFO] No fingerprint is provided. Using the INSECURE mode for connection!");
+            client.setInsecure();
+        }
         else client.setFingerprint(options.fingerprint.c_str());
+        #elif defined(ESP32)
+        if(options.caCert == "") {
+            Serial.println("[INFO] No CA Cert is provided. Using the INSECURE mode for connection!");
+            client.setInsecure();
+        }
+        else client.setCACert(options.caCert.c_str());
+        #endif
     }
 
     // Connecting to server.
-    while(!client.connect(parsedUrl.host, parsedUrl.port)) {
+    while(!client.connect(parsedUrl.host.c_str(), parsedUrl.port)) {
         delay(1000);
         // Serial.print(".");
     }
@@ -122,5 +133,9 @@ size_t Response::printTo(Print& p) const {
     return r;
 }
 
-RequestOptions::RequestOptions(): method("GET"), headers(Headers()), body(Body()), fingerprint("") {}
+RequestOptions::RequestOptions(): method("GET"), headers(Headers()), body(Body()),
+#ifdef ESP8266
+fingerprint(""),
+#endif
+caCert("") {}
 

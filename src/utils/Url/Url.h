@@ -14,7 +14,7 @@ class Url {
         String afterPath;
         String query;
         String fragment;
-        uint port;
+        uint16_t port;
         Url();
 };
 

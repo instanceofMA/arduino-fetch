@@ -80,7 +80,10 @@ class RequestOptions {
         String method;
         Headers headers;
         Body body;
+        #ifdef EEP8266
         String fingerprint;
+        #endif
+        String caCert;
         RequestOptions();
 };
 
