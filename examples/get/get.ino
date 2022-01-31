@@ -7,7 +7,7 @@
 
 
 void setup() {
-    Serial.begin(9200);
+    Serial.begin(9600);
     connectWiFi(SSID, PASSPHRASE);
 
     RequestOptions options;
@@ -16,6 +16,7 @@ void setup() {
     
     Response response = fetch("https://api.github.com/", options);
 
+    Serial.println();
     Serial.println(response.text());
 }
 

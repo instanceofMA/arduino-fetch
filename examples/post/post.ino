@@ -6,7 +6,7 @@
 #define FINGERPRINT "DC 78 3C 09 3A 78 E3 A0 BA A9 C5 4F 7A A0 87 6F 89 01 71 4C"
 
 void setup() {
-    Serial.begin(9200);
+    Serial.begin(9600);
     connectWiFi(SSID, PASSPHRASE);
 
     RequestOptions options;
