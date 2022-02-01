@@ -13,7 +13,8 @@ void setup() {
     options.method = "GET";
     
     Response response = fetch("https://api.github.com/", options);
-
+    
+    // Printing response body as plain text.
     Serial.println();
     Serial.println(response.text());
 }

@@ -134,7 +134,7 @@ size_t Response::printTo(Print& p) const {
 }
 
 RequestOptions::RequestOptions(): method("GET"), headers(Headers()), body(Body()),
-#ifdef ESP8266
+#if defined(ESP8266)
 fingerprint(""),
 #endif
 caCert("") {}
