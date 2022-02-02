@@ -20,6 +20,7 @@ void connectWiFi(const char* ssid, const char* passphrase) {
         // Print dots in a horizontal line to the Serial, showing the WiFi is trying to connect.
         Serial.print(".");
         // Blink LED very fast, showing the WiFi is trying to connect.
+        delay(1000);
         // blinkN(10);
     }
     // Stop the LED blinking, showing the WiFi is successfully connected.

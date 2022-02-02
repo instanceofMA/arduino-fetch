@@ -87,15 +87,6 @@ class RequestOptions {
         RequestOptions();
 };
 
-// class Fetch {
-//     private:
-//         const char* _url;
-//         RequestOptions _options;
-//     public:
-//         Fetch();
-//         Fetch(const char* url, RequestOptions options);
-// };
-
 Response fetch(const char* url, RequestOptions options);
 
 #endif

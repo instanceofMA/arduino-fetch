@@ -19,6 +19,7 @@ void connectWiFi(const char* ssid, const char* passphrase) {
     while (WiFi.status() != WL_CONNECTED) {
         // Print dots in a horizontal line to the Serial, showing the WiFi is trying to connect.
         Serial.print(".");
+        delay(1000);
         // Blink LED very fast, showing the WiFi is trying to connect.
         // blinkN(10);
     }

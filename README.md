@@ -4,7 +4,8 @@ fetch is a high level HTTP Request Library that gives you a javascript fetch lik
 ```js
 ResponseOptions options;
 options.method = "POST";
-options.fingerprint = "DC 78 3C 09 3A 78 E3 A0 BA A9 C5 4F 7A A0 87 6F 89 01 71 4C";
+// options.fingerprint = "DC 78 3C 09 3A 78 E3 A0 BA A9 C5 4F 7A A0 87 6F 89 01 71 4C";
+options.caCert = "";
 options.headers.contentType = "application/json";
 options.body = "{\"email\": \"test@test.com\", \"password\": \"test:80\"}";
 
@@ -102,10 +103,10 @@ unsigned int[] array = response.arrayBuffer(); // Not yet supported.
 
 bool ok = response.ok;
 int status = response.status;
-const char* statusText = response.statusText;
+String statusText = response.statusText;
 bool redirected = response.redirected; // Not yet supported.
-const char* type = response.type; // Not yet supported.
-const char* response.headers.get("content-type");
+String type = response.type; // Not yet supported.
+String response.headers.get("content-type");
 Headers headers = response.headers.raw(); // Not yet supported
 const char* contentTypeHeader = headers["content-type"]; // Not yet supported.
 

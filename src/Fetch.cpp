@@ -1,8 +1,6 @@
 #include "Fetch.h"
 #include <WiFiClientSecure.h>
 
-// Fetch fetch;
-
 Response fetch(const char* url, RequestOptions options) {
     // Parsing URL.
     Url parsedUrl = parseUrl(url);
@@ -14,10 +12,11 @@ Response fetch(const char* url, RequestOptions options) {
     // Set fingerprint if https.
     if(parsedUrl.scheme == "https") {
         #ifdef ESP8266
-        if(options.fingerprint == "") {
-            Serial.println("[INFO] No fingerprint is provided. Using the INSECURE mode for connection!");
+        if(options.fingerprint == "" && options.caCert == "") {
+            Serial.println("[INFO] No fingerprint or caCert is provided. Using the INSECURE mode for connection!");
             client.setInsecure();
         }
+        else if(options.caCert != "") client.setTrustAnchors(new X509List(options.caCert.c_str()));
         else client.setFingerprint(options.fingerprint.c_str());
         #elif defined(ESP32)
         if(options.caCert == "") {
@@ -31,7 +30,7 @@ Response fetch(const char* url, RequestOptions options) {
     // Connecting to server.
     while(!client.connect(parsedUrl.host.c_str(), parsedUrl.port)) {
         delay(1000);
-        // Serial.print(".");
+        Serial.print(".");
     }
 
     // Forming request.
@@ -43,8 +42,8 @@ Response fetch(const char* url, RequestOptions options) {
         "Connection: " + options.headers.connection + "\r\n\r\n" +
         options.body + "\r\n\r\n";
 
-    // Serial.println("Request is: ");
-    // Serial.println(request);
+    Serial.println("Request is: ");
+    Serial.println(request);
 
     // Sending request.
     client.print(request);
@@ -67,9 +66,9 @@ Response fetch(const char* url, RequestOptions options) {
         if(line == "\r") break;
     }
 
-    // Serial.println("-----HEADERS START-----");
-    // Serial.println(response.headers.text);
-    // Serial.println("-----HEADERS END-----");
+    Serial.println("-----HEADERS START-----");
+    Serial.println(response.headers.text);
+    Serial.println("-----HEADERS END-----");
 
     // Getting response body.
     while(client.available()) {
@@ -107,9 +106,6 @@ String Body::operator=(String str) {
 String operator+(String str, Body body) {
     return str + body.text();
 }
-
-// Fetch::Fetch(const char* url, RequestOptions options) :
-//     _url(url), _options(options) {}
 
 Response::Response(): ok(false), status(200), statusText("OK"),
     redirected(false), type(""), headers(ResponseHeaders()), body("") {}
