@@ -2,23 +2,11 @@
 // #include "utils/URLEncoded.h"
 // #include "utils/JSON.h"
 #include "utils/Url/Url.h"
+#include "utils/Headers/Headers.h"
 #include <Arduino.h>
 
 #ifndef FETCH_H_
 #define FETCH_H_
-
-class Headers {
-    private:
-    public:
-        String contentType;
-        unsigned long contentLength;
-        String userAgent;
-        String cookie;
-        String accept;
-        String connection;
-        String transferEncoding;
-        Headers();
-};
 
 class Body {
     private:
@@ -50,11 +38,15 @@ String operator+(String str, Body body);
 
 class ResponseHeaders {
     private:
+        String _text;
     public:
-        String text;
-
         ResponseHeaders();
         String get(String headerName);
+
+        String& text();
+
+        void operator+=(const String& s);
+        String operator[](const String& headerName);
 };
 
 class Response: public Printable {

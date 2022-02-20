@@ -41,7 +41,7 @@ void setup() {
 
     RequestOptions options;
     options.method = "POST";
-    options.headers.contentType = "application/json";
+    options.headers["Content-Type"] = "application/json";
     options.body = "{\"email\": \"test@test.com\", \"password\": \"test:80\"}";
     options.caCert = CACert;
     
@@ -50,8 +50,8 @@ void setup() {
     // Printing response.
     Serial.println(response);
     // Printing respons headers.
-    Serial.printf("Connection Header: \"%s\"\n", response.headers.get("Content-Type").c_str());
-    Serial.printf("Connection Header: \"%s\"\n", response.headers.get("Connection").c_str());
+    Serial.printf("Connection Header: \"%s\"\n", response.headers["Content-Type"].c_str());
+    Serial.printf("Connection Header: \"%s\"\n", response.headers["Connection"].c_str());
 }
 
 void loop() {

@@ -1,4 +1,5 @@
 #include "Fetch.h"
+#include "debug.h"
 #include <WiFiClientSecure.h>
 
 Response fetch(const char* url, RequestOptions options) {
@@ -13,14 +14,14 @@ Response fetch(const char* url, RequestOptions options) {
     if(parsedUrl.scheme == "https") {
         #ifdef ESP8266
         if(options.fingerprint == "" && options.caCert == "") {
-            Serial.println("[INFO] No fingerprint or caCert is provided. Using the INSECURE mode for connection!");
+            DEBUG_FETCH("[INFO] No fingerprint or caCert is provided. Using the INSECURE mode for connection!");
             client.setInsecure();
         }
         else if(options.caCert != "") client.setTrustAnchors(new X509List(options.caCert.c_str()));
         else client.setFingerprint(options.fingerprint.c_str());
         #elif defined(ESP32)
         if(options.caCert == "") {
-            Serial.println("[INFO] No CA Cert is provided. Using the INSECURE mode for connection!");
+            DEBUG_FETCH("[INFO] No CA Cert is provided. Using the INSECURE mode for connection!");
             client.setInsecure();
         }
         else client.setCACert(options.caCert.c_str());
@@ -37,13 +38,10 @@ Response fetch(const char* url, RequestOptions options) {
     String request =
         options.method + " " + parsedUrl.path + parsedUrl.afterPath + " HTTP/1.1\r\n" +
         "Host: " + parsedUrl.host + "\r\n" +
-        "User-Agent: " + options.headers.userAgent + "\r\n" +
-        "Content-Type: " + options.headers.contentType + "\r\n" +
-        "Connection: " + options.headers.connection + "\r\n\r\n" +
+        options.headers.text() +
         options.body + "\r\n\r\n";
 
-    Serial.println("Request is: ");
-    Serial.println(request);
+    DEBUG_FETCH("Request is: %s\n", request.c_str());
 
     // Sending request.
     client.print(request);
@@ -61,14 +59,12 @@ Response fetch(const char* url, RequestOptions options) {
             continue;
         }
 
-        response.headers.text += line + "\n";
+        response.headers += line + "\n";
         // If headers end, move on.
         if(line == "\r") break;
     }
 
-    Serial.println("-----HEADERS START-----");
-    Serial.println(response.headers.text);
-    Serial.println("-----HEADERS END-----");
+    DEBUG_FETCH("-----HEADERS START-----\n%s\n-----HEADERS END-----", response.headers.text().c_str());
 
     // Getting response body.
     while(client.available()) {
@@ -78,15 +74,23 @@ Response fetch(const char* url, RequestOptions options) {
     return response;
 }
 
-Headers::Headers(): contentType("application/x-www-form-urlencoded"),
-    contentLength(-1), userAgent("arduino-fetch"), cookie(""),
-    accept("*/*"), connection("close"), transferEncoding("") {}
-
-ResponseHeaders::ResponseHeaders(): text("") {}
+ResponseHeaders::ResponseHeaders(): _text("") {}
 
 String ResponseHeaders::get(String headerName) {
-    String tillEnd = this->text.substring(this->text.lastIndexOf(headerName + ": "));
+    String tillEnd = _text.substring(_text.lastIndexOf(headerName + ": "));
     return tillEnd.substring(tillEnd.indexOf(" ") + 1, tillEnd.indexOf("\n") - 1);
+}
+
+String& ResponseHeaders::text() {
+    return _text;
+}
+
+void ResponseHeaders::operator+=(const String& s) {
+    _text += s;
+}
+
+String ResponseHeaders::operator[](const String& headerName) {
+    return get(headerName);
 }
 
 Body::Body(): _text("") {}
@@ -108,7 +112,7 @@ String operator+(String str, Body body) {
 }
 
 Response::Response(): ok(false), status(200), statusText("OK"),
-    redirected(false), type(""), headers(ResponseHeaders()), body("") {}
+    redirected(false), type(""), headers({}), body("") {}
 
 String Response::text() {
     return this->body;
