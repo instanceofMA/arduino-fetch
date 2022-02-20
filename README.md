@@ -50,6 +50,8 @@ RequestOptions options;
 
 ResponseOptions options;
 options.method = "POST";
+options.headers.contentType = "application/json";
+headers.connection = "keep-alive";
 options.body = "email=EMAIL&password=PASSWORD";
 ```
 
