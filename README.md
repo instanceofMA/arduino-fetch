@@ -6,7 +6,7 @@ ResponseOptions options;
 options.method = "POST";
 // options.fingerprint = "DC 78 3C 09 3A 78 E3 A0 BA A9 C5 4F 7A A0 87 6F 89 01 71 4C";
 options.caCert = "";
-options.headers.contentType = "application/json";
+options.headers["Content-Type"] = "application/json";
 options.body = "{\"email\": \"test@test.com\", \"password\": \"test:80\"}";
 
 /** In JSON, this would look like:
@@ -50,8 +50,8 @@ RequestOptions options;
 
 ResponseOptions options;
 options.method = "POST";
-options.headers.contentType = "application/json";
-headers.connection = "keep-alive";
+options.headers["Content-Type"] = "application/json";
+options.headers["Connection"] = "keep-alive";
 options.body = "email=EMAIL&password=PASSWORD";
 ```
 
@@ -80,17 +80,12 @@ body = "{\"email\":\"EMAIL\", \"password\"=\"PASSWORD\"}";
 ```
 ## Request Headers
 
-<!-- ```cpp
-Headers headers;
-
-headers["Content-Type"] = "application/json";
-``` -->
 ```cpp
 Headers headers;
 
-headers.contentType = "application/json";
-headers.connection = "keep-alive";
-headers.cookie = "abc=def,ghi=jkl"; // Not yet supported.
+headers["Content-Type"] = "application/json";
+headers["Connection"] = "keep-alive";
+headers["Cookie"] = "abc=def,ghi=jkl"; // Not yet supported.
 ```
 # Response
 
@@ -108,7 +103,7 @@ int status = response.status;
 String statusText = response.statusText;
 bool redirected = response.redirected; // Not yet supported.
 String type = response.type; // Not yet supported.
-String response.headers.get("content-type");
+String response.headers["content-type"];
 Headers headers = response.headers.raw(); // Not yet supported
 const char* contentTypeHeader = headers["content-type"]; // Not yet supported.
 
