@@ -1,5 +1,5 @@
 # Fetch for Arduino
-fetch is a high level HTTP Request Library that gives you a javascript fetch like API.
+fetch is a high level HTTP Request Library that gives you a javascript fetch like API. It also supports making asynchronous/non-blocking requests, check out [this example](https://github.com/instanceofMA/arduino-fetch/blob/main/examples/esp8266/async/get/get.ino) and [others](https://github.com/instanceofMA/arduino-fetch/blob/main/examples).
 
 ```js
 ResponseOptions options;
@@ -31,6 +31,7 @@ Response response = fetch("https://api.grandeur.tech/auth/login/?apiKey=grandeur
 
 ```cpp
 Response response = fetch(const char* url, RequestOptions options);
+FetchClient client = fetch(const char* url, RequestOptions options, OnResponseCallback callback);
 ```
 
 # Request Options
