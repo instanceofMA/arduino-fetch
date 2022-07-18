@@ -1,8 +1,9 @@
 #include "recipes/WiFi.h"
 #include "Fetch.h"
  
-#define SSID "Mi Fimilia"
-#define PASSPHRASE "muhsamali"
+#define SSID YourWiFiSSID
+#define PASSPHRASE YourWiFiPassphrase
+// Fingerprint will expire and might need to be updated before running this sketch.
 #define FINGERPRINT "DC 78 3C 09 3A 78 E3 A0 BA A9 C5 4F 7A A0 87 6F 89 01 71 4C"
 
 void setup() {

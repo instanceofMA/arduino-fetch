@@ -3,6 +3,7 @@
  
 #define SSID YourWiFiSSID
 #define PASSPHRASE YourWiFiPassphrase
+// Certificate will expire and might need to be updated before running this sketch.
 #define CACert "-----BEGIN CERTIFICATE-----\n\
 MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n\
 TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh\n\

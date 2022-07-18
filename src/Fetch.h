@@ -79,6 +79,19 @@ class RequestOptions {
         RequestOptions();
 };
 
+typedef void (*OnResponseCallback)(Response response);
+
+class FetchClient {
+    private:
+        WiFiClientSecure _client;
+        OnResponseCallback _OnResponseCallback;
+    public:
+        FetchClient();
+        FetchClient(WiFiClientSecure& client, OnResponseCallback callback);
+        void loop();
+};
+
 Response fetch(const char* url, RequestOptions options);
+FetchClient fetch(const char* url, RequestOptions options, OnResponseCallback onResponseCallback);
 
 #endif

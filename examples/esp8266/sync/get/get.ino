@@ -3,7 +3,8 @@
  
 #define SSID YourWiFiSSID
 #define PASSPHRASE YourWiFiPassphrase
-#define FINGERPRINT "96 84 07 DF 0B 1C F6 58 14 DF D7 33 35 57 51 9B 15 4D 8C E7"
+// Fingerprint will expire and might need to be updated before running this sketch.
+#define FINGERPRINT "29 70 30 74 CA 3C 48 F5 4A 79 C6 2D 11 57 A2 41 2A 2D 7D 5C"
 
 
 void setup() {
