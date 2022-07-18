@@ -21,6 +21,14 @@ options.body = "{\"email\": \"test@test.com\", \"password\": \"test:80\"}";
 Response response = fetch("https://api.grandeur.tech/auth/login/?apiKey=grandeurkywxmoy914080rxf9dh05n7e", options);
 ```
 
+[Here's the link to the release article on instructables](https://www.instructables.com/Fetch-the-Easiest-Way-to-Make-HTTP-Requests-From-Y/).
+
+# Installation
+
+You can install fetch in your Arduino Project by:
+1. Installing from the [Arduino Library Manager]([https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries#using-the-library-manager:~:text=Library%20Reference.-,Using%20the%20Library%20Manager,-To%20install%20a)) directly.
+2. Download this repo as a ZIP and [import it into your project](https://docs.arduino.cc/software/ide-v1/tutorials/installing-libraries#using-the-library-manager:~:text=these%20instructions.-,Importing%20a%20.zip%20Library,-Libraries%20are%20often).
+
 # Include
 
 ```cpp
