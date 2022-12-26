@@ -13,10 +13,10 @@ void setup() {
     RequestOptions options;
     options.method = "POST";
     options.headers["Content-Type"] = "application/json";
-    options.body = "{\"email\": \"test@test.com\", \"password\": \"test:80\"}";
+    options.headers["Authorization"] = "c051d62800089fe87e35b820c9e36354f24695513aa4a8b2e49e8cd7cca7b6a8";
     options.fingerprint = FINGERPRINT;
     
-    Response response = fetch("https://api.grandeur.tech/auth/login/?apiKey=grandeurkywxmoy914080rxf9dh05n7e", options);
+    Response response = fetch("https://api.grandeur.tech/devices/get/?apiKey=grandeurlc4z67ve03ec0jfl01gk15xe", options);
     
     // Printing response.
     Serial.println(response);
