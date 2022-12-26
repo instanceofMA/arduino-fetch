@@ -29,9 +29,16 @@ Response fetch(const char* url, RequestOptions options) {
     }
 
     // Connecting to server.
-    while(!client.connect(parsedUrl.host.c_str(), parsedUrl.port)) {
-        delay(1000);
-        Serial.print(".");
+    bool connectionSuccess = client.connect(parsedUrl.host.c_str(), parsedUrl.port);
+    DEBUG_FETCH("Connection Success is: %d.", connectionSuccess);
+
+    // If there are errors, print and return.
+    DEBUG_FETCH("Connection Error is: %d.", client.getLastSSLError());
+    if(client.getLastSSLError()) {
+        char error[256];
+        client.getLastSSLError(error, 256);
+        Serial.println(error);
+        return Response();
     }
 
     // Forming request.
@@ -201,7 +208,7 @@ String operator+(String str, Body body) {
     return str + body.text();
 }
 
-Response::Response(): ok(false), status(200), statusText("OK"),
+Response::Response(): ok(false), status(0), statusText(""),
     redirected(false), type(""), headers({}), body("") {}
 
 String Response::text() {
