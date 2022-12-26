@@ -51,7 +51,7 @@ void setup() {
     // Printing response.
     Serial.println(response);
     // Printing respons headers.
-    Serial.printf("Connection Header: \"%s\"\n", response.headers["Content-Type"].c_str());
+    Serial.printf("Content-Type Header: \"%s\"\n", response.headers["Content-Type"].c_str());
     Serial.printf("Connection Header: \"%s\"\n", response.headers["Connection"].c_str());
 }
 
