@@ -1,10 +1,10 @@
 #include "recipes/WiFi.h"
 #include "Fetch.h"
 
-#define SSID "Mi Fimilia"
-#define PASSPHRASE "muhsamali"
+#define SSID YourWiFiSSID
+#define PASSPHRASE YourWiFiPassphrase
 // Fingerprint will expire and might need to be updated before running this sketch.
-#define FINGERPRINT "FE 48 BD 27 57 4A 79 B5 12 07 31 97 05 25 DC 4A A0 AF 32 CA"
+#define FINGERPRINT "5A B8 55 55 6B 64 F3 5A CA 71 21 9F 5A BC 16 22 1A B7 5A 1E"
 
 // Fetch when used in async mode returns a client that listens for the response.
 FetchClient client;

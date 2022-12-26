@@ -87,7 +87,7 @@ class FetchClient {
         OnResponseCallback _OnResponseCallback;
     public:
         FetchClient();
-        FetchClient(WiFiClientSecure& client, OnResponseCallback callback);
+        FetchClient(WiFiClientSecure client, OnResponseCallback callback);
         void loop();
 };
 
