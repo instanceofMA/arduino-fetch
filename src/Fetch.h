@@ -8,6 +8,9 @@
 #ifndef FETCH_H_
 #define FETCH_H_
 
+#define HTTP 0
+#define HTTPS 1
+
 class Body {
     private:
         String _text;
@@ -83,10 +86,13 @@ typedef void (*OnResponseCallback)(Response response);
 
 class FetchClient {
     private:
-        WiFiClientSecure _client;
+        short _protocol;
+        WiFiClient _httpClient;
+        WiFiClientSecure _httpsClient;
         OnResponseCallback _OnResponseCallback;
     public:
         FetchClient();
+        FetchClient(WiFiClient client, OnResponseCallback callback);
         FetchClient(WiFiClientSecure client, OnResponseCallback callback);
         void loop();
 };

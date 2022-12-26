@@ -2,22 +2,30 @@
 #include "debug.h"
 #include <WiFiClientSecure.h>
 
-void setupHTTPS(WiFiClientSecure& client, String fingerprint, String caCert) {
+void setupHTTPS(WiFiClientSecure& client, RequestOptions options) {
     // Set Fingerprint or Certificate for https.
     #ifdef ESP8266
-    if(fingerprint == "" && caCert == "") {
+    if(options.fingerprint == "" && options.caCert == "") {
         DEBUG_FETCH("[INFO] No fingerprint or caCert is provided. Using the INSECURE mode for connection!");
         client.setInsecure();
     }
-    else if(caCert != "") client.setTrustAnchors(new X509List(caCert.c_str()));
-    else client.setFingerprint(fingerprint.c_str());
+    else if(options.caCert != "") client.setTrustAnchors(new X509List(options.caCert.c_str()));
+    else client.setFingerprint(options.fingerprint.c_str());
     #elif defined(ESP32)
-    if(caCert == "") {
+    if(options.caCert == "") {
         DEBUG_FETCH("[INFO] No CA Cert is provided. Using the INSECURE mode for connection!");
         client.setInsecure();
     }
-    else client.setCACert(caCert.c_str());
+    else client.setCACert(options.caCert.c_str());
     #endif
+}
+
+bool connectToServer(WiFiClient& client, const char* host, unsigned int port) {
+    // Connecting to server.
+    bool connectionSuccess = client.connect(host, port);
+    DEBUG_FETCH("Connection Success is: %d.", connectionSuccess);
+
+    return connectionSuccess;
 }
 
 bool connectToServer(WiFiClientSecure& client, const char* host, unsigned int port) {
@@ -37,6 +45,20 @@ bool connectToServer(WiFiClientSecure& client, const char* host, unsigned int po
     return true;
 }
 
+void sendRequest(WiFiClient& client, Url& url, RequestOptions& options) {
+    // Forming request.
+    String request =
+        options.method + " " + url.path + url.afterPath + " HTTP/1.1\r\n" +
+        "Host: " + url.host + "\r\n" +
+        options.headers.text() +
+        options.body + "\r\n\r\n";
+
+    DEBUG_FETCH("-----REQUEST START-----\n%s\n-----REQUEST END-----", request.c_str());
+
+    // Sending request.
+    client.print(request);
+}
+
 void sendRequest(WiFiClientSecure& client, Url& url, RequestOptions& options) {
     // Forming request.
     String request =
@@ -49,6 +71,37 @@ void sendRequest(WiFiClientSecure& client, Url& url, RequestOptions& options) {
 
     // Sending request.
     client.print(request);
+}
+
+Response receiveResponse(WiFiClient& client) {
+    // Getting response headers.
+    Response response;
+    for(int nLine = 1; client.connected(); nLine++) {
+        // Reading headers line by line.
+        String line = client.readStringUntil('\n');
+        // Parse status and statusText from line 1.
+        if(nLine == 1) {
+            response.status = line.substring(line.indexOf(" ")).substring(0, line.indexOf(" ")).toInt();
+            response.statusText = line.substring(line.indexOf(String(response.status)) + 4);
+            response.statusText.trim();
+            // Sets the "ok" field if request was successful.
+            if(response.status >= 200 && response.status < 300) response.ok = true;
+            continue;
+        }
+
+        response.headers += line + "\n";
+        // If headers end, move on.
+        if(line == "\r") break;
+    }
+
+    DEBUG_FETCH("-----HEADERS START-----\n%s\n-----HEADERS END-----", response.headers.text().c_str());
+
+    // Getting response body.
+    while(client.available()) {
+        response.body += client.readStringUntil('\n');
+    }
+
+    return response;
 }
 
 Response receiveResponse(WiFiClientSecure& client) {
@@ -82,25 +135,63 @@ Response receiveResponse(WiFiClientSecure& client) {
     return response;
 }
 
-Response fetch(const char* url, RequestOptions options) {
-    // Parsing URL.
-    Url parsedUrl = parseUrl(url);
-    
+WiFiClient makeHTTPRequest(Url& url, RequestOptions& options) {
+    WiFiClient client;
+    // Retry every 15 seconds.
+    client.setTimeout(15000);
+
+    if(connectToServer(client, url.host.c_str(), url.port))
+        sendRequest(client, url, options);
+
+    return client;
+}
+
+WiFiClientSecure makeHTTPSRequest(Url& url, RequestOptions& options) {
     WiFiClientSecure client;
     // Retry every 15 seconds.
     client.setTimeout(15000);
 
-    if(parsedUrl.scheme == "https") setupHTTPS(client, options.fingerprint, options.caCert);
+    setupHTTPS(client, options);
+
+    if(connectToServer(client, url.host.c_str(), url.port))
+        sendRequest(client, url, options);
+
+    return client;
+}
+
+Response fetch(const char* url, RequestOptions options) {
+    // Parsing URL.
+    Url parsedUrl = parseUrl(url);
 
     Response response;
 
-    if(connectToServer(client, parsedUrl.host.c_str(), parsedUrl.port)) {
-        sendRequest(client, parsedUrl, options);
-        response = receiveResponse(client);
-    }
+    if(parsedUrl.scheme == "http") {
+        WiFiClient client;
+        // Retry every 15 seconds.
+        client.setTimeout(15000);
 
-    // Stopping the client.
-    client.stop();
+        if(connectToServer(client, parsedUrl.host.c_str(), parsedUrl.port))
+            sendRequest(client, parsedUrl, options);
+
+        response = receiveResponse(client);
+        // Stopping the client.
+        client.stop();
+    }
+    else if(parsedUrl.scheme == "https") {
+        WiFiClientSecure client;
+        // Retry every 15 seconds.
+        client.setTimeout(15000);
+
+        setupHTTPS(client, options);
+
+        if(connectToServer(client, parsedUrl.host.c_str(), parsedUrl.port))
+            sendRequest(client, parsedUrl, options);
+
+        response = receiveResponse(client);
+        // Stopping the client.
+        client.stop();
+    }
+    else DEBUG_FETCH("[ERROR] Protocol is not supported. Please only use HTTP or HTTPS.");
 
     return response;
 }
@@ -108,30 +199,59 @@ Response fetch(const char* url, RequestOptions options) {
 FetchClient fetch(const char* url, RequestOptions options, OnResponseCallback onResponseCallback) {
     // Parsing URL.
     Url parsedUrl = parseUrl(url);
+
+    if(parsedUrl.scheme == "http") {
+        WiFiClient client;
+        // Retry every 15 seconds.
+        client.setTimeout(15000);
+
+        if(connectToServer(client, parsedUrl.host.c_str(), parsedUrl.port))
+            sendRequest(client, parsedUrl, options);
+
+        return FetchClient(client, onResponseCallback);
+    }
+    else if(parsedUrl.scheme == "https") {
+        WiFiClientSecure client;
+        // Retry every 15 seconds.
+        client.setTimeout(15000);
+
+        setupHTTPS(client, options);
+
+        if(connectToServer(client, parsedUrl.host.c_str(), parsedUrl.port))
+            sendRequest(client, parsedUrl, options);
+
+        return FetchClient(client, onResponseCallback);
+    }
     
-    WiFiClientSecure client;
-    // Retry every 15 seconds.
-    client.setTimeout(15000);
-
-    if(parsedUrl.scheme == "https") setupHTTPS(client, options.fingerprint, options.caCert);
-
-    if(connectToServer(client, parsedUrl.host.c_str(), parsedUrl.port))
-        sendRequest(client, parsedUrl, options);
-
-    return FetchClient(client, onResponseCallback);
+    DEBUG_FETCH("[ERROR] Protocol is not supported. Please only use HTTP or HTTPS.");
+    return FetchClient();
 }
 
-FetchClient::FetchClient() {}
+FetchClient::FetchClient() :
+_protocol(HTTP), _httpClient(), _httpsClient(), _OnResponseCallback(NULL) {}
 
-FetchClient::FetchClient(WiFiClientSecure client, OnResponseCallback onResponseCallback) : _client(client), _OnResponseCallback(onResponseCallback) {}
+FetchClient::FetchClient(WiFiClient client, OnResponseCallback onResponseCallback) :
+_protocol(HTTP), _httpClient(client), _httpsClient(), _OnResponseCallback(onResponseCallback) {}
+
+FetchClient::FetchClient(WiFiClientSecure client, OnResponseCallback onResponseCallback) :
+_protocol(HTTPS), _httpClient(), _httpsClient(client), _OnResponseCallback(onResponseCallback) {}
 
 void FetchClient::loop() {
-    if(_client.available()) {
+    if(_protocol == HTTP && _httpClient.available()) {
         DEBUG_FETCH("[Info] Receiving response.");
-        Response response = receiveResponse(_client);
+        Response response = receiveResponse(_httpClient);
 
         // Stopping the client.
-        _client.stop();
+        _httpClient.stop();
+
+        _OnResponseCallback(response);
+    }
+    else if(_protocol == HTTPS && _httpsClient.available()) {
+        DEBUG_FETCH("[Info] Receiving response.");
+        Response response = receiveResponse(_httpsClient);
+
+        // Stopping the client.
+        _httpsClient.stop();
 
         _OnResponseCallback(response);
     }
