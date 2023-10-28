@@ -118,6 +118,11 @@ Response receiveResponse(WiFiClientSecure& client) {
             // Sets the "ok" field if request was successful.
             if(response.status >= 200 && response.status < 300) response.ok = true;
             continue;
+        } 
+        else if (line.startsWith(F("Content-Length: ")))
+        {
+            response.contentLength = line.substring(line.indexOf(" ")).toInt();
+            DEBUG_FETCH("ContentLength: %d", response.contentLength);
         }
 
         response.headers += line + "\n";
@@ -127,9 +132,16 @@ Response receiveResponse(WiFiClientSecure& client) {
 
     DEBUG_FETCH("-----HEADERS START-----\n%s\n-----HEADERS END-----", response.headers.text().c_str());
 
+    char buffer[FETCH_READ_BUFFER_SIZE];
+    int contentRemaining = response.contentLength;
+    int contentToRead = contentRemaining <= FETCH_READ_BUFFER_SIZE ? contentRemaining : FETCH_READ_BUFFER_SIZE;
+
     // Getting response body.
-    while(client.available()) {
-        response.body += client.readStringUntil('\n');
+    while(client.available() && contentRemaining > 0) {
+        client.readBytes(buffer, contentToRead);
+        response.body += buffer;
+        contentRemaining -= contentToRead;
+        contentToRead = contentRemaining <= FETCH_READ_BUFFER_SIZE ? contentRemaining : FETCH_READ_BUFFER_SIZE;
     }
 
     return response;
