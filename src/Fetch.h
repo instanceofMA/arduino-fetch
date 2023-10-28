@@ -10,16 +10,19 @@
 
 #define HTTP 0
 #define HTTPS 1
+#define FETCH_READ_BUFFER_SIZE 1000
 
-class Body {
-    private:
-        String _text;
-    public:
-        Body();
-        String operator+(String str);
-        String operator=(String str);
+class Body
+{
+private:
+    String _text;
 
-        String text();
+public:
+    Body();
+    String operator+(String str);
+    String operator=(String str);
+
+    String text();
 };
 
 String operator+(String str, Body body);
@@ -39,65 +42,72 @@ String operator+(String str, Body body);
 //         Request();
 // };
 
-class ResponseHeaders {
-    private:
-        String _text;
-    public:
-        ResponseHeaders();
-        String get(String headerName);
+class ResponseHeaders
+{
+private:
+    String _text;
 
-        String& text();
+public:
+    ResponseHeaders();
+    String get(String headerName);
 
-        void operator+=(const String& s);
-        String operator[](const String& headerName);
+    String &text();
+
+    void operator+=(const String &s);
+    String operator[](const String &headerName);
 };
 
-class Response: public Printable {
-    private:
-    public:
-        bool ok;
-        int status;
-        String statusText;
-        bool redirected;
-        String type;
-        ResponseHeaders headers;
-        String body;
+class Response : public Printable
+{
+private:
+public:
+    bool ok;
+    int status;
+    String statusText;
+    bool redirected;
+    int contentLength;
+    String type;
+    ResponseHeaders headers;
+    String body;
 
-        Response();
-        String text();
+    Response();
+    String text();
 
-        size_t printTo(Print& p) const;
+    size_t printTo(Print &p) const;
 };
 
-class RequestOptions {
-    private:
-    public:
-        String method;
-        Headers headers;
-        Body body;
-        #if defined(ESP8266)
-        String fingerprint;
-        #endif
-        String caCert;
-        RequestOptions();
+class RequestOptions
+{
+private:
+public:
+    String method;
+    Headers headers;
+    Body body;
+#if defined(ESP8266)
+    String fingerprint;
+#endif
+    String caCert;
+    RequestOptions();
 };
 
 typedef void (*OnResponseCallback)(Response response);
 
-class FetchClient {
-    private:
-        short _protocol;
-        WiFiClient _httpClient;
-        WiFiClientSecure _httpsClient;
-        OnResponseCallback _OnResponseCallback;
-    public:
-        FetchClient();
-        FetchClient(WiFiClient client, OnResponseCallback callback);
-        FetchClient(WiFiClientSecure client, OnResponseCallback callback);
-        void loop();
+class FetchClient
+{
+private:
+    short _protocol;
+    WiFiClient _httpClient;
+    WiFiClientSecure _httpsClient;
+    OnResponseCallback _OnResponseCallback;
+
+public:
+    FetchClient();
+    FetchClient(WiFiClient client, OnResponseCallback callback);
+    FetchClient(WiFiClientSecure client, OnResponseCallback callback);
+    void loop();
 };
 
-Response fetch(const char* url, RequestOptions options);
-FetchClient fetch(const char* url, RequestOptions options, OnResponseCallback onResponseCallback);
+Response fetch(const char *url, RequestOptions options);
+FetchClient fetch(const char *url, RequestOptions options, OnResponseCallback onResponseCallback);
 
 #endif
