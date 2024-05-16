@@ -2,7 +2,7 @@
 fetch is a high level HTTP Request Library that gives you a javascript fetch like API. It also supports making asynchronous/non-blocking requests, check out [this example](https://github.com/instanceofMA/arduino-fetch/blob/main/examples/esp8266/async/get/get.ino) and [others](https://github.com/instanceofMA/arduino-fetch/blob/main/examples).
 
 ```js
-ResponseOptions options;
+RequestOptions options;
 options.method = "POST";
 // options.fingerprint = "DC 78 3C 09 3A 78 E3 A0 BA A9 C5 4F 7A A0 87 6F 89 01 71 4C";
 options.caCert = "";
@@ -57,7 +57,7 @@ RequestOptions options;
     }
 */
 
-ResponseOptions options;
+RequestOptions options;
 options.method = "POST";
 options.headers["Content-Type"] = "application/json";
 options.headers["Connection"] = "keep-alive";
@@ -65,7 +65,7 @@ options.body = "email=EMAIL&password=PASSWORD";
 ```
 
 <!-- ```cpp
-ResponseOptions options;
+RequestOptions options;
 options["method"] = "POST";
 options["body"] = "email=EMAIL&password=PASSWORD";
 ``` -->
